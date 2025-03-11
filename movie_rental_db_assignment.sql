@@ -198,3 +198,46 @@ insert into Rentals(customer_id,movie_id,rental_date,return_date) values
 select * from late_returns;
 
 
+--QUERIES
+
+--list movies that have never been rented
+select m.title
+from movies  m
+join rentals r on m.movie_id=r.movie_id
+where r.movie_id=null;
+
+--find the latest rental for each customer
+select c.name, m.title, r.rental_date
+from rentals r
+join customers c on c.customer_id=r.customer_id
+join movies m on m.movie_id=r.movie_id
+where r.rental_date=(
+select max(rental_date) from rentals r2
+where r2.customer_id=r.customer_id
+);
+
+--find customers with more than 2 rentals
+select c.name, count(r.rental_id) as rental_count
+from customers c
+join rentals r on r.customer_id=c.customer_id
+group by c.name
+having count(rental_id) >2;
+
+--get the month with highest number of rentals
+select extract(month from rental_date) as Month, count(*) as rental_count
+from rentals
+group by Month
+order by rental_count desc;
+
+--find customers who have rented more than 1 movie of same genre
+select c.name,m.genre, count(*) as genre_rentals
+from rentals r
+join customers c on r.customer_id=c.customer_id
+join movies m on m.movie_id=r.movie_id
+group by c.name, m.genre
+having count(*) >1;
+
+
+
+
+
